@@ -22,6 +22,7 @@ int msh_execute(char ** args);
 int msh_cd(char ** args);
 int msh_help(char ** args);
 int msh_exit(char ** args);
+int msh_pwd(char ** args);
 
 int main(int argc, char **argv)
 {   
@@ -35,14 +36,16 @@ int main(int argc, char **argv)
 char *builtin_str[] = {
     "cd",
     "help",
-    "exit"
+    "exit",
+    "pwd"
 };
 
 //function pointers
 int (*builtin_func[]) (char **) = {
     &msh_cd,
     &msh_help,
-    &msh_exit
+    &msh_exit,
+    &msh_pwd
 };
 
 //return size
@@ -91,6 +94,17 @@ int msh_exit(char ** args)
     return 0;
 }
 
+//Print current directory.
+int msh_pwd(char ** args)
+{
+    char *current_directory = (char *)malloc(msh_read_line_BUFFER_SIZE);
+    if(getcwd(current_directory, msh_read_line_BUFFER_SIZE) != NULL)
+    {
+        printf("%s \n", current_directory);
+    }
+    return 1;
+}
+
 //Execute a command by comparing the arguments with the array.
 int msh_execute(char ** args)
 {
@@ -109,6 +123,8 @@ int msh_execute(char ** args)
 
     return msh_launch_process(args);
 }
+
+
 
 void buffer_allocation_error(void)
 {   
@@ -242,7 +258,7 @@ void msh_loop(void)
     do
     {
         printf("> ");
-        
+
         line = msh_read_line();
         args = msh_parse_arguments(line);
         status = msh_execute(args);
